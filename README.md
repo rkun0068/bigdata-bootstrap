@@ -59,7 +59,7 @@ export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 export HADOOP_HOME=/opt/hadoop
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 ```
-所有配置都已通过ansible进行自动化
+以上配置可通过ansible进行自动化
 ```
 ansible-playbook main.yml -t <config file prefix>
 # .e.g config hdfs-site.xml
