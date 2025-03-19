@@ -1,0 +1,16 @@
+- name: Setup /etc/hosts
+  lineinfile:
+    path: "/etc/hosts"
+    line: "{{ item.ip }} {{ item.hostname }}"
+    create: yes
+  with_items: "{{ host_map }}"
+  tags:
+  - setup_hosts
+# https://docs.ansible.com/ansible/latest/collections/ansible/posix/authorized_key_module.html
+- name: Add authorized_key
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', 'files/id_rsa.pub') }}"
+    state: present
+  tags:
+  - setup_authorized_key

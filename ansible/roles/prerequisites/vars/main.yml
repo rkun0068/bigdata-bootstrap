@@ -1,0 +1,5 @@
+# TODO: 修改为实际的IP
+host_map:
+- { ip: 10.80.128.3, hostname: node01 }  
+- { ip: 10.67.16.23, hostname: node02 } 
+- { ip: 10.67.16.25, hostname: node03 } 

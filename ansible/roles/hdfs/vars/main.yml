@@ -8,3 +8,48 @@ hadoop_env_sh:
 - {name: HDFS_SECONDARYNAMENODE_USER, value: root}
 - {name: YARN_RESOURCEMANAGER_USER, value: root}
 - {name: YARN_NODEMANAGER_USER, value: root}
+
+# core-site.xml
+# TODO: 修改为实际的hdfs配置
+core_site_xml:
+- {name: fs.defaultFS, value: hdfs://node01:8020}
+- {name: hadoop.tmp.dir, value: /tmp/hadoop}
+- {name: hadoop.http.staticuser.user,value: root}
+- {name: hadoop.proxyuser.root.hosts,value: "*"}
+- {name: hadoop.proxyuser.root.groups,value: "*"}
+- {name: fs.trash.interval,value: 1440}
+
+# dfs.datanode.data.dir
+dn_dirs:
+- /mnt/disk/0/hadoop
+- /mnt/disk/1/hadoop
+
+# hdfs-site.xml
+hdfs_site_xml:
+- {name: dfs.namenode.secondary.http-address, value: "node02:9868" }
+- {name: dfs.datanode.data.dir, value: "file:{{ dn_dirs | join(',') }}"}
+
+# mapred-site.xml
+mapred_site_xml:
+- {name: mapreduce.framework.name, value: yarn}
+- {name: mapreduce.jobhistory.address, value: "node01:10020"}
+- {name: mapreduce.jobhistory.webapp.address, value: "node01:19888"}
+- {name: yarn.app.mapreduce.am.env, value: "HADOOP_MAPRED_HOME=${HADOOP_HOME}"}
+- {name: mapreduce.map.env, value: "HADOOP_MAPRED_HOME=${HADOOP_HOME}"}
+- {name: mapreduce.reduce.env, value: "HADOOP_MAPRED_HOME=${HADOOP_HOME}"}
+
+# yarn-site.xml
+yarn_site_xml:
+- {name: yarn.resourcemanager.hostname, value: "node01"}
+- {name: yarn.nodemanager.aux-services, value: "mapreduce_shuffle"}
+- {name: yarn.nodemanager.pmem-check-enabled, value: "false"}
+- {name: yarn.nodemanager.vmem-check-enabled, value: "false"}
+- {name: yarn.log-aggregation-enable, value: "true"}
+- {name: yarn.log.server.url, value: "http://node01:19888/jobhistory/logs"}
+- {name: yarn.log-aggregation.retain-seconds, value: "604800"}
+
+# workers
+workers:
+- node01
+- node02
+- node03

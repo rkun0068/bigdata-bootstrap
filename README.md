@@ -40,8 +40,39 @@ ansible-playbook main.yml -t hdfs_01_download
 ```
 
 ### 配置
-- `hadoop-env.sh` 
-- [Configuring Environment of Hadoop Daemons](https://hadoop.apache.org/docs/r3.4.1/hadoop-project-dist/hadoop-common/ClusterSetup.html#Configuring_Environment_of_Hadoop_Daemons)
+ - [Configuring Environment of Hadoop Daemons ｜hadoop-env.sh](https://hadoop.apache.org/docs/r3.4.1/hadoop-project-dist/hadoop-common/ClusterSetup.html#Configuring_Environment_of_Hadoop_Daemons)
 
+- [core-default.xml 参数](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/core-default.xml)
 
+- [hdfs-site.xml 参数](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/hdfs-default.xml)
+  - `dfs.datanode.data.dir` 基于不同机器规格进行配置,样例使用本地磁盘
+- [mapred-site.xml 参数](https://hadoop.apache.org/docs/stable/hadoop-mapreduce-client/hadoop-mapreduce-client-core/mapred-default.xml)  
+- [yarn-site.xml 参数](https://hadoop.apache.org/docs/r2.7.3/hadoop-yarn/hadoop-yarn-common/yarn-default.xml)
+- 最后配置环境变量,修改文件 `/etc/profile`
 
+```
+# JAVA
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0  # TODO：based on your linux env
+export PATH=$PATH:$JAVA_HOME/bin
+export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+# HADOOP
+export HADOOP_HOME=/opt/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+```
+所有配置都已通过ansible进行自动化
+```
+ansible-playbook main.yml -t <config file prefix>
+# .e.g config hdfs-site.xml
+ansible-playbook main.yml -t hdfs-site
+```
+### 启动
+首次启动需要格式化
+```
+hadoop namenode -format
+
+# 启动hdfs
+start-dfs.sh
+# 启动yarn
+start-yarn.sh
+# 访问dfs.namenode.http-address:9870(默认值)进入HDFS WebUI
+```
