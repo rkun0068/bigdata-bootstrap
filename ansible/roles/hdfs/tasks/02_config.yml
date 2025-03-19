@@ -1,0 +1,10 @@
+- name: Copy hadoop-env.sh
+  lineinfile:
+    path: "/opt/hadoop/etc/hadoop/hadoop-env.sh"
+    regexp: "^# export {{ item.name }}"
+    line: "export {{ item.name }}={{ item.value }}"
+    create: yes
+  with_items: "{{ hadoop_env_sh }}"
+  tags:
+  - hadoop-env
+

@@ -1,0 +1,25 @@
+- name: Fetch a hadoop binary package
+  get_url:
+    url: "{{ hadoop_bin_url }}"
+    dest: "/tmp/{{ hadoop_bin_url | basename }}"
+    
+- name: Clean  /opt/hadoop
+  file:
+    path: "/opt/hadoop"
+    state: absent
+
+- name: Create /opt/hadoop
+  file:
+    path: "/opt/hadoop"
+    state: directory
+
+- name: Extract the hadoop binary package
+  unarchive:
+    src: "/tmp/{{ hadoop_bin_url | basename }}"
+    dest: "/opt/hadoop"
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+   # refer: https://geeksocket.in/posts/writing-ansible-playbook/
+
+

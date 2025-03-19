@@ -1,0 +1,9 @@
+- import_tasks: 01_download.yml
+  tags:
+  - hdfs_01_download
+
+- import_tasks: 02_config.yml
+  tags:
+  - hdfs_02_config
+
+  
