@@ -1,0 +1,7 @@
+---
+zookeeper_bin_url: https://dlcdn.apache.org/zookeeper/zookeeper-3.8.4/apache-zookeeper-3.8.4-bin.tar.gz
+
+zookeeper_servers:
+- "node01"
+- "node02"
+- "node03"

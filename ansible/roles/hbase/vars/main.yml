@@ -1,0 +1,21 @@
+---
+hbase_bin_url: https://dlcdn.apache.org/hbase/2.6.2/hbase-2.6.2-bin.tar.gz
+
+# hbase-site.xml
+hbase_site_xml:
+- {name: hbase.rootdir, value: hdfs://node01:8020/hbase}
+- {name: hbase.cluster.distributed, value: "true"}
+- {name: hbase.zookeeper.quorum, value: "node01,node02,node03"}
+- {name: hbase.wal.provider, value: "filesystem"}
+# HBase 2.x 默认使用 asyncfs，基于 Netty 和 HDFS，提升并发性能。
+# 使用 传统 HDFS WAL 方式，避免 Netty 依赖问题。
+# hbase-env.sh
+hbase_env_sh:
+- {name: JAVA_HOME, value: /usr/lib/jvm/java-1.8.0}
+- {name: HBASE_MANAGES_ZK, value: "false"}
+# regionservers
+regionservers:
+- node02
+- node03
+
+

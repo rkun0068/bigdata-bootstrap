@@ -1,6 +1,14 @@
 - name: bigdata-bootstrap
   hosts: all
   roles:
-  - prerequisites
-  - hdfs
-  
+  - role: ops
+  - role: prerequisites
+  - role: hdfs
+    tags:
+    - hdfs
+  - role: zookeeper
+    tags:
+    - zookeeper
+  - role: hbase
+    tags:
+    - hbase

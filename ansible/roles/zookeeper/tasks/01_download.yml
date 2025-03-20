@@ -1,0 +1,26 @@
+- name: Stop the zookeeper service if it is running
+  command: "/opt/zookeeper/bin/zkServer.sh stop"
+  ignore_errors: yes
+
+- name: Install the ZooKeeper Binary Package
+  get_url:
+    url: "{{ zookeeper_bin_url }}"
+    dest: "/tmp/{{ zookeeper_bin_url | basename }}"
+    
+- name: Clean  /opt/zookeeper
+  file:
+    path: "/opt/zookeeper"
+    state: absent
+
+- name: Create /opt/zookeeper
+  file:
+    path: "/opt/zookeeper"
+    state: directory
+
+- name: Extract the hadoop binary package
+  unarchive:
+    src: "/tmp/{{ zookeeper_bin_url | basename }}"
+    dest: "/opt/zookeeper"
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1

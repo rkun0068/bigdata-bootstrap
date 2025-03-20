@@ -1,0 +1,22 @@
+- name: Fetch a hbase binary package
+  get_url:
+    url: "{{ hbase_bin_url }}"
+    dest: "/tmp/{{ hbase_bin_url | basename }}"
+    
+- name: Clean  /opt/hbase
+  file:
+    path: "/opt/hbase"
+    state: absent
+
+- name: Create /opt/hbase
+  file:
+    path: "/opt/hbase"
+    state: directory
+
+- name: Extract the hbase binary package
+  unarchive:
+    src: "/tmp/{{ hbase_bin_url | basename }}"
+    dest: "/opt/hbase"
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1

@@ -1,0 +1,7 @@
+- name: Hbase->stop region servers
+  shell: . /etc/profile &&  hbase-daemon.sh stop regionserver
+  args:
+    executable: /bin/bash
+  ignore_errors: yes
+  tags:
+  - stop-region

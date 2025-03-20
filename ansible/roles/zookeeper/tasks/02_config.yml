@@ -1,0 +1,19 @@
+- name: Create a data directory
+  file:
+    path: "/var/lib/zookeeper"
+    state: directory
+
+- name: Create a configuration file
+  template:
+    src: "zoo.cfg.j2"
+    dest: "/opt/zookeeper/conf/zoo.cfg"
+    mode: "0644"
+
+- name: Create a myid file
+  copy:
+    dest: "/var/lib/zookeeper/myid"
+    content: "{{ ansible_hostname[-1] }}"
+
+
+- name: Run the zookeeper service
+  command: "/opt/zookeeper/bin/zkServer.sh start"
