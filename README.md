@@ -59,7 +59,7 @@ export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
 export HADOOP_HOME=/opt/hadoop
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 ```
-所有配置都已通过ansible进行自动化
+以上配置可通过ansible进行自动化
 ```
 ansible-playbook main.yml -t <config file prefix>
 # .e.g config hdfs-site.xml
@@ -75,4 +75,31 @@ start-dfs.sh
 # 启动yarn
 start-yarn.sh
 # 访问dfs.namenode.http-address:9870(默认值)进入HDFS WebUI
+```
+## <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Apache_ZooKeeper_logo.svg/1024px-Apache_ZooKeeper_logo.svg.png" width = "100" height = "50">Zookeeper
+构建Zookeeper集群
+- [Apache Hadoop 3.4.1 – Dependencies Report](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs-rbf/dependency-analysis.html)
+- 安装版本: [3.8.4](https://www.apache.org/dyn/closer.lua/zookeeper/zookeeper-3.8.4/apache-zookeeper-3.8.4-bin.tar.gz)
+- [Clustered (Multi-Server) Setup](https://zookeeper.apache.org/doc/r3.9.3/zookeeperAdmin.html#sc_zkMulitServerSetup)
+
+```
+# 安装启动zookeeper
+ansible-playbook main.yml -t zookeeper
+```
+## <img src="https://raw.githubusercontent.com/apache/hbase/master/src/site/resources/images/hbase_logo_with_orca_large.png" width = "150" height = "50">HBase
+- [Hadoop version support matrix](https://hbase.apache.org/book.html#hadoop)
+- 安装版本: [2.6.2](https://www.apache.org/dyn/closer.lua/hbase/2.6.2/hbase-2.6.2-bin.tar.gz)
+- 集群规划
+
+| **Host** | **Role** |
+| --- | --- |
+| node01 | HMaster       |
+| node02 | RegionServer  |
+| node03 | RegionServer  |
+- [Example Configurations](https://hbase.apache.org/book.html#example_config)
+```
+# 安装hbase
+ansible-playbook main.yml -t hbase
+# 在node01节点上启动hbase cluster
+[root@node01 ~]# start-hbase.sh
 ```

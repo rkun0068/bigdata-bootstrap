@@ -1,0 +1,8 @@
+- import_tasks: 01_download.yml
+  tags:
+  - zookeeper_01_download
+
+- import_tasks: 02_config.yml
+  tags:
+  - zookeeper_02_config
+

@@ -1,0 +1,75 @@
+- name: Copy hbase-env.sh
+  lineinfile:
+    path: "/opt/hbase/conf/hbase-env.sh"
+    regexp: "^# export {{ item.name }}"
+    line: "export {{ item.name }}={{ item.value }}"
+    create: yes
+  with_items: "{{ hbase_env_sh }}"
+  tags:
+  - hbase-env
+
+- name: Clean up hbase-site.xml
+  xml:
+    path: "/opt/hbase/conf/hbase-site.xml"
+    xpath: "/configuration"
+    set_children: []
+  tags:
+  - hbase-site
+
+- name: Setup hbase-site.xml
+  xml:
+    path: "/opt/hbase/conf/hbase-site.xml"
+    xpath: "/configuration"
+    add_children:
+      - property:
+          name: "{{ item.name }}"
+          value: "{{ item.value }}"
+    pretty_print: true 
+  with_items: "{{ hbase_site_xml }}"
+  tags:
+  - hbase-site
+
+- name: Clean up regionservers
+  copy:
+    dest: "/opt/hbase/conf/regionservers"
+    content: ""
+  tags:
+  - regionservers 
+  
+- name: Setup regionservers
+  lineinfile:
+    path: "/opt/hbase/conf/regionservers"
+    line: "{{ item }}"
+  with_items: "{{ regionservers }}"
+  tags:
+  - regionservers
+
+# - name: Find htrace-core*.jar
+#   find:
+#     paths: "/opt/hbase/lib/client-facing-thirdparty/"
+#     patterns: "htrace-core*.jar"
+#   register: htrace_core_jar
+#   tags:
+#   - htrace-core
+
+# - name: Copy htrace-core*.jar in case of conflists
+#   copy:
+#     src: "{{ htrace_core_jar.files[0].path }}"
+#     dest: "/opt/hbase/lib"
+#     remote_src: yes
+#   tags:
+#   - htrace-core
+
+- name: Setup HBASE_HOME
+  blockinfile:
+    path: "/etc/profile"
+    marker: "# {mark} HBASE CONFIG"
+    block: |
+      # HBASE
+      export HBASE_HOME=/opt/hbase
+      export PATH=$PATH:$HBASE_HOME/bin
+    create: yes
+    insertafter: EOF
+  tags:
+  - setup_hbase_home
+

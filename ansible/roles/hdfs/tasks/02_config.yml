@@ -134,6 +134,7 @@
 - name: Set JAVA and HADOOP environment variables in /etc/profile
   blockinfile:
     path: /etc/profile
+    marker: "# {mark} HADOOP CONFIG"
     block: |
       # JAVA
       export JAVA_HOME=/usr/lib/jvm/java-1.8.0  # TODO: based on your linux env
