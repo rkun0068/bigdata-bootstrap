@@ -1,3 +1,4 @@
 ansible/host.ini
 projects/hbase/demo/target/classes/com/example/*
 projects/hbase/demo/target/test-classes/com/example/*
+.vscode/*

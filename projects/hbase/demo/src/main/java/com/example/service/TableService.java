@@ -10,17 +10,17 @@ import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import java.io.IOException;
-
+import org.apache.hadoop.hbase.util.Bytes;
 public class TableService {
     private static final String TABLE_NAME = "GOOGLE_PLAY_STORE";
     private static final String COLUMN_FAMILY = "INFO";
     
-    public static void createOrOverwrite(Admin admin, HTableDescriptor table) throws IOException {
+    public static void createOrOverwrite(Admin admin, HTableDescriptor table, byte[][] splitKeys) throws IOException {
         if (admin.tableExists(table.getTableName())) {
           admin.disableTable(table.getTableName());
           admin.deleteTable(table.getTableName());
         }
-        admin.createTable(table);
+        admin.createTable(table, splitKeys);
     }
 
     public static void create(Configuration conf) throws IOException {
@@ -29,7 +29,8 @@ public class TableService {
             HTableDescriptor table = new HTableDescriptor(TableName.valueOf(TABLE_NAME));
             table.addFamily(new HColumnDescriptor(COLUMN_FAMILY).setCompressionType(Compression.Algorithm.NONE));
             System.out.println("Creating table...");
-            createOrOverwrite(admin, table);
+            byte[][] splitKeys = { Bytes.toBytes("8") };
+            createOrOverwrite(admin, table, splitKeys);
             System.out.println("Table created successfully");
 
         }
