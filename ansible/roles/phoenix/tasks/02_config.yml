@@ -1,0 +1,35 @@
+- name: Setup hbase-site.xml
+  community.general.xml:
+    path: "/opt/hbase/conf/hbase-site.xml"
+    xpath: "/configuration"
+    add_children:
+      - property:
+          name: "{{ item.name }}"
+          value: "{{ item.value }}"
+    pretty_print: true
+  with_items: "{{ phoenix_hbase_site_xml }}"
+  tags:
+  - phoenix-hbase-site-xml
+
+- name: Copy hbase-site.xml to phoenix bin dir
+  copy:
+    src: "/opt/hbase/conf/hbase-site.xml"
+    dest: "/opt/phoenix/bin/"
+    remote_src: yes
+  tags:
+  - phoenix-copy-hbase-site-xml
+
+
+
+- name: Setup PHOENIX environment variables
+  blockinfile:
+    path: /etc/profile
+    marker: "# {mark} PHOENIX CONFIG"
+    block: |
+      export PHOENIX_HOME=/opt/phoenix
+      export PHOENIX_CLASSPATH=$PHOENIX_HOME
+      export PATH=$PATH:$PHOENIX_HOME/bin
+    create: yes
+    insertafter: EOF
+  tags:
+  - phoenix-setup-env-vars

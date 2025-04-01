@@ -103,3 +103,13 @@ ansible-playbook main.yml -t hbase
 # 在node01节点上启动hbase cluster
 [root@node01 ~]# start-hbase.sh
 ```
+## <img src="https://phoenix.apache.org/images/phoenix-logo-small.png" width = "150" height = "50">phoenix
+- 提供标准的SQL以及完备的ACID事务支持
+- 通过利用HBase作为存储，让NoSQL数据库具备通过有模式的方式读取数据，我们可以使用SQL语句来操作HBase，例如：创建表、以及插入数据、修改数据、删除数据等。
+- Phoenix通过协处理器在服务器端执行操作，最小化客户机/服务器数据传输
+- [Installation](https://phoenix.apache.org/installation.html)
+```
+ansible-playbook main.yml -t phoenix 
+# 初次启动
+sqlline.py localhost:2181
+```

@@ -12,3 +12,6 @@
   - role: hbase
     tags:
     - hbase
+  - role: phoenix
+    tags:
+    - phoenix

@@ -1,0 +1,6 @@
+phoenix_bin_url: https://dlcdn.apache.org/phoenix/phoenix-5.2.1/phoenix-hbase-2.6-5.2.1-bin.tar.gz
+
+# hbase-site.xml
+phoenix_hbase_site_xml:
+- {name: phoenix.schema.isNamespaceMappingEnabled, value: "true" }
+- {name: hbase.regionserver.wal.codec, value: org.apache.hadoop.hbase.regionserver.wal.IndexedWALEditCodec}

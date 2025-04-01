@@ -1,0 +1,37 @@
+- name: Fetch a phoenix binary package
+  get_url:
+    url: "{{ phoenix_bin_url }}"
+    dest: "/tmp/{{ phoenix_bin_url | basename }}"
+
+- name: Clean up /opt/phoenix
+  file:
+    path: "/opt/phoenix"
+    state: absent
+
+- name: Create /opt/phoenix directory
+  file:
+    path: "/opt/phoenix"
+    state: directory
+
+- name: Extract a phoenix binary package
+  unarchive:
+    src: "/tmp/{{ phoenix_bin_url | basename }}"
+    dest: "/opt/phoenix"
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+# refer: https://juejin.cn/post/7102339885922517022#__Phoenix__jar__HBase_lib__35
+- name: copy the phoenix server jar into the lib directory of every region server and master
+  copy:
+    src: "/opt/phoenix/{{ item }}"
+    dest: "/opt/hbase/lib/"
+    remote_src: yes
+  loop:
+  - phoenix-pherf-5.2.1.jar 
+  - phoenix-server-hbase-2.6-5.2.1.jar
+  tags:
+  - phoenix-copy-jars
+
+
+
+    
