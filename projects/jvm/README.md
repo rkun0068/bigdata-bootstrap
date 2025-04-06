@@ -8,7 +8,7 @@ JVM 本质上是一个运行在计算机上的程序,用来运行Java字节码�
 ###  PC Register
 - 每个线程会通过PC Register记录当前要执行的的字节码指令的地址。
 
-## Memory Optimization
+
 ```
 public class SimplePC {
     public static void main(String[] args) {
@@ -62,8 +62,125 @@ public class com.example.memory.SimplePC {
 - **每个线程都有独立的 PC**，它在 **线程切换时** 仅用于记录 **下一条要执行的指令地址**，并不会存储数据。  
 
 
+### Stack
 
 
+Java虚拟机栈（Java Virtual Machine Stack）采用栈的数据结构来管理方法调用中的基本数据，先
+进后出（First In Last Out）,每一个方法的调用使用一个栈帧（Stack Frame）来保存。
+- [Java/JVM Stacks and Stack Frames](https://alvinalexander.com/scala/fp-book/recursion-jvm-stacks-stack-frames/)
+- [Java Virtual Machine Stacks](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.5.2)
+### Stack Frame组成
+- [Local Variables](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.6.1)
+>局部变量表的作用是在运行过程中存放所有的局部变量
+- [Operand Stacks](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.6.1)
+> 操作数栈是栈帧中虚拟机在执行指令过程中用来存放临时数据的一块区域
+- Frame Data
+> 帧数据主要包含动态链接、方法出口、异常表的引用
+#### Local Variables 
+局部变量表的作用是在方法执行过程中存放所有的局部变量。编译成字节码文件时就可以确定局部变
+量表的内容。
+```
+# Refer projects/jvm/demo/src/main/java/com/example/memory/SimplePC.java
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      16     0  args   [Ljava/lang/String;
+            2      14     1     a   I
+            4      12     2     b   I
+            8       8     3   sum   I
+```
+- 栈帧中的局部变量表是一个数组，数组中每一个位置称之为槽(slot) ，long和double类型占用两个槽，其
+他类型占用一个槽。
+
+查看[ParamOrder.java](https://github.com/rkun0068/bigdata-bootstrap/tree/main/projects/jvm/demo/src/main/java/com/example/memory/ParamOrder.java)的`add`方法的本地变量表
+```
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      26     0     x   I
+            0      26     1     y   D
+            0      26     3     z   Ljava/lang/String;
+            4      22     4 local   I
+```
+- 方法参数也会保存在局部变量表中，其顺序与方法中参数定义的顺序一致。
+
+[SlotReuse.java](https://github.com/rkun0068/bigdata-bootstrap/tree/main/projects/jvm/demo/src/main/java/com/example/memory/SlotReuse.java)
+```
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      22     0  args   [Ljava/lang/String;
+            3       7     1     a   I
+           14       7     1     b   D
+```
+- 为了节省空间，局部变量表中的槽是可以复用的，一旦某个局部变量不再生效，当前槽就可以再次被使用。
+
+##### Operand Stacks
+>操作数栈是栈帧中虚拟机在执行指令过程中用来存放中间数据的一块区域。他是一种栈式的数据结构，如果一条指令将一个值压入操作数栈，则后面的指令可以弹出并使用该值。
+>在编译期就可以确定操作数栈的最大深度，从而在执行时正确的分配内存大小。
+
+```
+# public class com.example.memory.SimplePC
+stack=2, locals=4, args_size=1
+
+ 0: iconst_1             // 将整数常量1压入操作数栈
+ 1: istore_1             // 将1存入局部变量1（int a = 1）
+ 2: iconst_2             // 将整数常量2压入操作数栈
+ 3: istore_2             // 将2存入局部变量2（int b = 2）
+ 4: iload_1              // 加载局部变量1的值（a）
+ 5: iload_2              // 加载局部变量2的值（b）
+ 6: iadd                 // 执行加法操作：a + b
+ 7: istore_3             // 将结果存入局部变量3（int c = a + b）
+ 8: getstatic #16        // 获取 System.out 对象（PrintStream）
+11: iload_3              // 加载局部变量3的值（c）
+12: invokevirtual #22    // 调用 println(int) 方法，打印 c 的值
+15: return               // 方法返回（void）
+
+
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      16     0  args   [Ljava/lang/String;
+            2      14     1     a   I
+            4      12     2     b   I
+            8       8     3   sum   I
+```
+#### Frame Data
+- [Dynamic Linking](http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.6.3)
+
+当前类的字节码指令引用了其他类的属性或者方法时，需要将符号引用（编号）转换成对应的运行时常量池
+中的内存地址。动态链接就保存了编号到运行时常量池的内存地址的映射关系。
+- [Normal Method Invocation Completion](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.6.4)
+
+方法出口指的是方法在正确或者异常结束时，当前栈帧会被弹出，同时程序计数器应该指向上一个栈帧中的
+下一条指令的地址。所以在当前栈帧中，需要存储此方法出口的地址。
+- 异常表
+[ExceptionTest](https://github.com/rkun0068/bigdata-bootstrap/tree/main/projects/jvm/demo/src/main/java/com/example/memory/ExceptionTest.java)
+异常表存放的是代码中异常的处理信息，包含了异常捕获的生效范围以及异常发生后跳转到的字节码指令位置。
+```
+      Exception table:
+         from    to  target type
+             0     5     8   Class java/lang/ArithmeticException
+             0     5    28   Class java/lang/Exception
+             0    17    48   any
+            28    37    48   any
+```
+#### 栈内存溢出
+- Java虚拟机栈如果栈帧过多，占用内存超过栈内存可以分配的最大大小就会出现内存溢出。
+- Java虚拟机栈内存溢出时会出现StackOverflowError的错误。
+
+[StackOverflowTest.java](https://github.com/rkun0068/bigdata-bootstrap/tree/main/projects/jvm/demo/src/main/java/com/example/memory/StackOverflowTest.java)
+> 使用递归让方法调用自身，但是不设置退出条件。定义调用次数的变量，每一次调用让变量加1。查看错误发生时总调用的次数。
+```
+Stack overflow after 22019 calls.
+java.lang.StackOverflowError
+```
+- [Guide to JVM memory configuration options](https://bell-sw.com/blog/guide-to-jvm-memory-configuration-options/)
+- [Java HotSpot VM Options](https://www.oracle.com/java/technologies/javase/vmoptions-jsp.html)
+执行添加`-Xss4m`参数，设置栈大小为4MB
+```
+Stack overflow after 100888 calls.
+java.lang.StackOverflowError 
+```
+#### [Native Method Stacks](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.5.6)
+- Java虚拟机栈存储了Java方法调用时的栈帧，而本地方法栈存储的是native本地方法的栈帧。
+- 在Hotspot虚拟机中，Java虚拟机栈和本地方法栈实现上使用了同一个栈空间。本地方法栈会在栈内存上生成一个栈帧，临时保存方法的参数同时方便出现异常时也把本地方法的栈信息打印出来。
 ### Leak
 - [java-memory-leaks](https://www.baeldung.com/java-memory-leaks)
 
