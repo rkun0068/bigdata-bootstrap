@@ -181,6 +181,41 @@ java.lang.StackOverflowError
 #### [Native Method Stacks](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-2.html#jvms-2.5.6)
 - Java虚拟机栈存储了Java方法调用时的栈帧，而本地方法栈存储的是native本地方法的栈帧。
 - 在Hotspot虚拟机中，Java虚拟机栈和本地方法栈实现上使用了同一个栈空间。本地方法栈会在栈内存上生成一个栈帧，临时保存方法的参数同时方便出现异常时也把本地方法的栈信息打印出来。
+### Heap
+- 一般Java程序中堆内存是空间最大的一块内存区域。创建出来的对象都存在于堆上。
+- 栈上的局部变量表中，可以存放堆上对象的引用。静态变量也可以存放堆对象的引用，通过静态变量就可以实
+现对象在线程之间共享。
+
+[HeapOverflowTest.java](https://github.com/rkun0068/bigdata-bootstrap/tree/main/projects/jvm/demo/src/main/java/com/example/memory/HeapOverflowTest.java)
+>通过new关键字不停创建对象，放入集合中，模拟堆内存的溢出，观察堆溢出之后的异常信息。堆内存大小是有上限的，当对象一直向堆中放入对象达到上限之后，就会抛出OutOfMemory错误。
+```
+🔥 OutOfMemoryError occurred after creating 23457 objects
+java.lang.OutOfMemoryError: Java heap space
+        at com.example.memory.HeapOverflowTest$BigObject.<init>(HeapOverflowTest.java:9)
+        at com.example.memory.HeapOverflowTest.main(HeapOverflowTest.java:18)
+```
+[Difference in Used, Committed, and Max Heap Memory](https://www.baeldung.com/java-heap-used-committed-max)
+- 堆空间有三个需要关注的值，used total max。
+- used指的是当前已使用的堆内存，total是java虚拟机已经分配的可用堆内存，max是java虚拟机可以分配的最大堆内存。
+- 随着堆中的对象增多，当total可以使用的内存即将不足时，java虚拟机会继续分配内存给堆。
+- 如果堆内存不足，java虚拟机就会不断的分配内存，total值会变大。total最多只能与max相等
+- 如果不设置任何的虚拟机参数，max默认是系统内存的1/4，total默认是系统内存的1/64。
+
+设置堆大小
+[Oracle官方文档](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html)
+- 要修改堆的大小，可以使用虚拟机参数 –Xmx（max最大值）和-Xms (初始的total)。
+- 单位：字节（默认，必须是 1024 的倍数）、k或者K(KB)、m或者M(MB)、g或者G(GB)
+- 限制：Xmx必须大于 2 MB，Xms必须大于1MB
+```
+# 执行添加-Xms16m -Xmx32m
+🔥 OutOfMemoryError occurred after creating 30 objects
+java.lang.OutOfMemoryError: Java heap space
+        at com.example.memory.HeapOverflowTest$BigObject.<init>(HeapOverflowTest.java:9)
+        at com.example.memory.HeapOverflowTest.main(HeapOverflowTest.java:18)
+```
+- Java服务端程序开发时，建议将-Xmx和-Xms设置为相同的值，这样在程序启动之后可使用的总内存就是最大内存，而无
+需向JVM再次申请，减少了申请并分配内存时间上的开销，同时也不会出现内存过剩之后堆收缩的情况。
+
 ### Leak
 - [java-memory-leaks](https://www.baeldung.com/java-memory-leaks)
 
