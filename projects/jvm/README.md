@@ -216,6 +216,42 @@ java.lang.OutOfMemoryError: Java heap space
 - Java服务端程序开发时，建议将-Xmx和-Xms设置为相同的值，这样在程序启动之后可使用的总内存就是最大内存，而无
 需向JVM再次申请，减少了申请并分配内存时间上的开销，同时也不会出现内存过剩之后堆收缩的情况。
 
+### Method Area
+<img src="https://www.herongyang.com/JVM/JVM-Runtime-Data-Areas.jpg" width = "500" height = "300">
+
+- 方法区是存放基础信息的位置，线程共享，主要包含三部分内容
+- class Meta: 保存了所有类的基本信息
+- 运行时常量池: 保存了字节码文件中的常量池内容
+- 字符串常量池: 保存了字符串常量
+[StringTableTest.java](https://github.com/rkun0068/bigdata-bootstrap/tree/main/projects/jvm/demo/src/main/java/com/example/memory/StringTableTest.java)
+```
+         0: new           #16                 // class java/lang/String
+         3: dup
+         4: ldc           #18                 // String abc
+         6: invokespecial #20                 // Method java/lang/String."<init>":(Ljava/lang/String;)V
+         9: astore_1
+        10: ldc           #18                 // String abc
+        12: astore_2
+        13: getstatic     #23                 // Field java/lang/System.out:Ljava/io/PrintStream;
+        16: aload_1
+        17: aload_2
+        18: if_acmpne     25
+        21: iconst_1
+        22: goto          26
+        25: iconst_0
+        26: invokevirtual #29                 // Method java/io/PrintStream.println:(Z)V
+        29: return
+```
+- s1是对象存放在堆里，s2存放在字符串常量池，所以输出false
+### Direct Memory
+直接内存（Direct Memory）并不在《Java虚拟机规范》中存在，所以并不属于Java运行时的内存区域。
+在 JDK 1.4 中引入了 NIO 机制，使用了直接内存，主要为了解决以下两个问题:
+
+1.Java堆中的对象如果不再使用要回收，回收时会影响对象的创建和使用。
+
+2.IO操作比如读文件，需要先把文件读入直接内存（缓冲区）再把数据复制到Java堆中。现在直接放入直接内存即可，同时Java堆上维护直接内存的引用，减少了数据复制的开销。写文件也是类似的思路。
+
+[-XX:MaxDirectMemorySize](https://eclipse.dev/openj9/docs/xxmaxdirectmemorysize/)
 ### Leak
 - [java-memory-leaks](https://www.baeldung.com/java-memory-leaks)
 
